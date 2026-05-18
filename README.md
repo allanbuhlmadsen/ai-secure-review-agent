@@ -212,7 +212,7 @@ The `.env` file is excluded from Git using `.gitignore`.
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/allanbuhlmadsen/ai-secure-review-agent.git
 ```
 
 Navigate to the project directory:
