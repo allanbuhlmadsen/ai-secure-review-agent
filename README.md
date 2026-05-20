@@ -409,3 +409,9 @@ The project does not focus on:
 # License
 
 Educational project developed for a Machine Learning and Artificial Intelligence course.
+
+
+## Contributions
+
+This project was completed individually by Allan Buhl Blindbæk. 
+ChatGPT was used as a development assistant for guidance, debugging, and documentation support.
