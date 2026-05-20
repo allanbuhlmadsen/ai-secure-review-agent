@@ -2,76 +2,76 @@
 
 ## 1. Introduktion
 
-AI Secure Coding Review Agent er et afgrænset AI-agent-system, der analyserer mindre C#/.NET-repositories for almindelige secure coding-problemer. Systemet kombinerer deterministiske scanning tools med LLM-baseret analyse og forklaring.
+AI Secure Coding Review Agent er et afgrænset AI-agent-system, der analyserer mindre C#/.NET-repositories for almindelige problemer inden for sikker kodning. Systemet kombinerer deterministiske værktøjer med LLM-baseret ræsonnement og analyse.
 
-Projektet er udviklet til et Machine Learning-fag, der bl.a. har haft fokus på moderne AI-systemer, herunder:
+Projektet er udviklet til et Machine Learning-fag, der blandt andet har haft fokus på moderne AI-systemer, herunder:
 - LLMs
 - AI-agenter
-- tool-calling
-- grounded reasoning
-- hallucination mitigation
-- structured outputs
+- værktøjskald (tool-calling)
+- grounded reasoning eller faktabaseret ræsonnement
+- reduktion af hallucinationer (hallucination mitigation)
+- strukturerede output (structured outputs)
 - evaluering af agentadfærd
 
-Formålet er ikke at bygge en fuld static analysis engine eller en produktionsklar security scanner. Formålet er i stedet at demonstrere, hvordan en AI-agent kan bruge konkrete tools til at finde faktuelle kodefund og derefter bruge en LLM til at forklare risiko, severity-vurdering og mulige mitigation-forslag.
+Formålet er ikke at bygge en fuld løsning til statisk analyse eller en produktionsklar sikkerhedsscanner. Formålet er i stedet at demonstrere, hvordan en AI-agent kan anvende konkrete værktøjer til at finde verificerbare kodefund og derefter anvende en LLM til at forklare risiko, lave alvorlighedsvurderinger og give forslag til håndtering deraf.
 
-Systemet analyserer i version 1 fire typer secure coding-problemer:
-- Hardcoded Secrets
-- Potential SQL Injection
-- Missing Authorization
-- Missing Input Validation
+Systemet analyserer i version 1 fire typer problemer inden for sikker kodning:
+- Hardkodede secrets
+- SQL-injektioner
+- Manglende autorisation
+- Manglende input validering
 
 Designet adskiller bevidst:
 - deterministisk scanning
-- LLM-baseret reasoning
+- LLM-baseret ræsonnement og analyse
 - deterministisk validering af output
 
 Denne opdeling gør agentens workflow mere gennemsigtigt, reducerer risikoen for hallucinationer og gør outputtet lettere at evaluere.
 
 ## 2. Systemarkitektur
 
-Systemet er opbygget som et lagdelt AI-agent-workflow, hvor deterministiske tools og LLM-baseret reasoning arbejder sammen i separate trin.
+Systemet er opbygget som et lagdelt AI-agent-system, hvor deterministiske værktøjer og LLM-baseret ræsonnement og analyse arbejder sammen i separate trin.
 
-Workflowet består overordnet af følgende faser:
+Systemets workflow består overordnet af følgende faser:
 
-1. Repository traversal
+1. Gennemgang af repository
 2. Deterministisk scanning
-3. Tool call logging
+3. Logging af værktøjskald
 4. LLM-baseret analyse
 5. JSON-validering
 6. Rapportgenerering
 
-Først gennemgår systemet et repository og identificerer relevante filer, eksempelvis `.cs`-filer. Derefter udføres flere deterministiske sikkerhedsscannere, som søger efter konkrete mønstre ved hjælp af regulære udtryk (regex) og keyword-baseret scanning.
+Først gennemgår systemet et repository og identificerer relevante filer, i dette tilfælde .cs-filer. Derefter udføres flere deterministiske sikkerhedsscan, som søger efter konkrete mønstre ved hjælp af regulære udtryk (regex) og keyword-baseret scanning.
 
-De deterministiske scannere fungerer som systemets grounded data layer. Det betyder, at LLM’en ikke selv gennemgår hele repository’et, men i stedet modtager allerede identificerede scannerfund som input.
+De deterministiske scannere fungerer som systemets faktabaserede datalag, dvs. fundamentet for grounded reasoning. De sikrer, at LLM’en ikke selv gennemgår hele repository’et, men i stedet modtager allerede identificerede scannerfund som input.
 
 Efter scanning sendes fundene til LLM-laget, som anvender Mistral AI til at:
 - forklare sårbarheder
-- udføre severity-vurderinger
-- foreslå mitigation-forslag
+- udføre alvorlighedsvurderinger
+- give anbefalinger til håndtering af hallucination
 - kombinere relaterede fund
-- returnere structured JSON output
+- returnere struktureret JSON-output
 
-Systemet logger samtidig alle tool calls med:
-- tool-navn
+Systemet logger samtidig alle værktøjskald med:
+- værktøjsnavn
 - filnavn
 - timestamp
 - antal fund
 
 Dette forbedrer systemets transparens og gør agentens adfærd lettere at analysere og evaluere.
 
-Før output gemmes, udføres en deterministisk JSON-validering. Hvis LLM’en returnerer ugyldigt JSON, bliver rapporten ikke skrevet. Dette fungerer som en simpel guardrail mod ukorrekt eller ustabilt output.
+Før output gemmes, udføres deterministisk JSON-validering. Hvis LLM’en returnerer ugyldigt JSON, bliver rapporten ikke skrevet. Dette fungerer som en simpel kontrolmekanisme mod ukorrekt eller ustabilt output.
 
 Arkitekturen er bevidst designet med tydelig adskillelse mellem:
-- deterministiske tools
-- probabilistisk LLM-reasoning
+- deterministiske værktøjer
+- sandsynlighedsbaseret ræsonnement og analyse med LLM
 - outputvalidering
 
-Denne opdeling reducerer hallucinationsrisiko og gør systemets beslutningsflow mere forklarligt.
+Denne opdeling reducerer hallucinationsrisiko og gør systemets workflow mere forklarligt.
 
-## 3. Deterministiske Tools
+## 3. Deterministiske værktøjer
 
-Systemet anvender flere deterministiske værktøjer til repository traversal, scanning, logging og validering. Disse tools fungerer som agentens faktuelle og verificerbare datalag.
+Systemet anvender flere deterministiske værktøjer til gennemgang af repositories, scanning, logging og validering. Disse værktøjer fungerer som agentens faktabaserede datalag.
 
 ### Repository Scanner
 
@@ -91,34 +91,34 @@ Systemet anvender fire specialiserede sikkerhedsscannere:
 - `authorization_scanner.py`
 - `input_validation_scanner.py`
 
-Scannerne anvender primært regex- og keyword-baseret scanning til at identificere potentielle secure coding-problemer.
+Scannerne anvender primært regex- og keyword-baseret scanning til at identificere potentielle problemer inden for sikker kodning.
 
 Eksempler:
-- hardcoded passwords eller API keys
+- hardkodede passwords eller API keys
 - SQL queries bygget via string concatenation
 - endpoints uden `[Authorize]`
 - endpoints uden synlig inputvalidering
 
-Scanningen er bevidst simpel og afgrænset. Projektet fokuserer på AI-agent workflows og tool orchestration fremfor avanceret static analysis.
+Scanningen er bevidst simpel og afgrænset. Projektet fokuserer på AI-agentens workflow og værktøjskoordinering (tool orchestration) fremfor avanceret statisk analyse.
 
 ### Tool Logger
 
 `tool_logger.py` registrerer:
-- hvilke tools der blev kaldt
+- hvilke værktøjer der blev kaldt
 - hvilke filer der blev analyseret
 - timestamps
 - antal fund
 
-Loggen gemmes som structured JSON og forbedrer systemets sporbarhed og transparens.
+Loggen gemmes som struktureret JSON-output og forbedrer systemets sporbarhed og transparens.
 
 ### JSON Validator
 
-`json_validator.py` fungerer som en deterministisk guardrail.
+`json_validator.py` fungerer som en deterministisk kontrolmekanisme.
 
 Efter LLM-analysen valideres outputtet med standard JSON parsing. Hvis output ikke er valid JSON:
 - stoppes rapportskrivningen
-- brugeren får en fejlmeddelelse
-- tool call loggen bevares
+- brugeren modtager en fejlmeddelelse
+- loggen over værktøjskald bevares
 
 Dette reducerer risikoen for ustabilt eller ubrugeligt LLM-output.
 
@@ -126,43 +126,43 @@ Dette reducerer risikoen for ustabilt eller ubrugeligt LLM-output.
 
 Efter den deterministiske scanning sendes scannerfundene til LLM-laget, som anvender Mistral AI til at analysere fundene og generere strukturerede sikkerhedsvurderinger.
 
-LLM’en anvendes ikke til selvstændigt at scanne repository’et. I stedet modtager den allerede identificerede fund fra de deterministiske tools. Dette designvalg reducerer hallucinationsrisiko og gør outputtet mere grounded og verificerbart.
+LLM’en anvendes ikke til selvstændigt at scanne repository’et. I stedet modtager den allerede identificerede fund fra de deterministiske værktøjer. Dette designvalg reducerer hallucinationsrisiko og gør outputtet faktabeseret (grounded) og derfor verificerbart.
 
 LLM’en instrueres eksplicit gennem prompten til:
 - kun at anvende de fund, der sendes som input
-- ikke at opfinde filer, linjenumre eller vulnerabilities
+- ikke at opfinde filer, linjenumre eller sårbarheder
 - kombinere relaterede fund
 - returnere valid JSON
 - undgå forklarende tekst udenfor JSON-outputtet
 
 Prompten specificerer samtidig den ønskede struktur for hvert fund:
-- vulnerability_type
-- file
-- lines
-- severity
-- explanation
-- recommendation
+- sårbarhedstype (vulnerability_type)
+- fil (file)
+- linjer (lines)
+- alvorlighed (severity)
+- forklaring (explanation)
+- anbefaling (recommendation)
 
-Severity-vurderingerne genereres af LLM’en og er derfor probabilistiske vurderinger fremfor objektivt verificerede sikkerhedsvurderinger.
+Alvorlighedsvurderingerne genereres af LLM’en og er derfor sandsynlighedsbaserede vurderinger fremfor objektivt verificerede sikkerhedsvurderinger.
 
-Systemet bruger structured JSON output for at gøre resultaterne:
+Systemet anvender struktureret JSON-output for at gøre resultaterne:
 - maskinlæsbare
 - evaluerbare
 - sammenlignelige mellem testcases
 
-Denne tilgang gør det muligt at kombinere deterministiske tools med fleksibel LLM-baseret reasoning uden at give LLM’en fuld kontrol over analysegrundlaget.
+Denne tilgang gør det muligt at kombinere deterministiske værktøjer med fleksibel LLM-baseret ræsonnement og analyse uden at give LLM’en fuld kontrol over analysegrundlaget.
 
-## 5. Hallucination Mitigation og Failure Handling
+## 5. Hallucinationsreduktion og Fejlhåndtering
 
 En central udfordring ved LLM-baserede systemer er risikoen for hallucinationer, hvor modellen genererer information, som ikke er baseret på faktiske data.
 
 Projektet forsøger at reducere denne risiko gennem flere designvalg.
 
-### Grounded Scanner Findings
+### Faktabaserede verificerbare scannerfund
 
-LLM’en modtager ikke hele repository’et som input. Den modtager kun konkrete scannerfund fra de deterministiske tools.
+LLM’en modtager ikke hele repository’et som input. Den modtager kun konkrete scannerfund fra de deterministiske værktøjer.
 
-Dette begrænser analysegrundlaget til verificerbare fund og reducerer sandsynligheden for, at modellen opfinder nye vulnerabilities eller kodefund.
+Dette begrænser analysegrundlaget til verificerbare fund og reducerer sandsynligheden for, at modellen opfinder nye sårbarheder eller kodefund.
 
 ### Restriktiv Prompting
 
@@ -171,7 +171,7 @@ Prompten instruerer eksplicit LLM’en til:
 - ikke at opfinde filer eller linjenumre
 - returnere ren JSON uden ekstra tekst
 
-Dette fungerer som en simpel prompt-baseret guardrail.
+Dette fungerer som en simpel prompt-baseret kontrolmekanisme.
 
 ### Deterministisk JSON-validering
 
@@ -180,16 +180,16 @@ Efter LLM-analysen udfører systemet en deterministisk validering af outputtet.
 Hvis output ikke er valid JSON:
 - stoppes rapportskrivningen
 - brugeren modtager en fejlmeddelelse
-- tool call loggen bevares
+- loggen over værktøjskald bevares
 
 Dette reducerer risikoen for ustabilt eller ubrugeligt output.
 
-### Failure Handling
+### Fejlhåndtering
 
-Projektet indeholder simple failure handling-mekanismer for:
+Projektet indeholder simple mekanismer til fejlhåndtering for:
 - ugyldige repository paths
 - tomme repositories
-- malformed LLM JSON responses
+- ugyldigt JSON-output fra LLM’en
 
 Systemet er designet til at fejle kontrolleret fremfor at crashe ukontrolleret med stack traces.
 
@@ -198,70 +198,70 @@ Systemet er designet til at fejle kontrolleret fremfor at crashe ukontrolleret m
 Selvom hallucinationsrisikoen reduceres, kan den ikke elimineres fuldstændigt.
 
 Projektet har blandt andet følgende begrænsninger:
-- regex-scanning kan give false positives
-- regex-scanning kan give false negatives
-- severity-vurderinger er LLM-baserede
+- regex-baseret scanning kan give falske positiver
+- regex-baseret scanning kan give falske negativer
+- alvorlighedsvurderinger er LLM-baserede og dermed sandsynlighedsbaserede
 - output kan variere mellem kørsler
 - systemet udfører ikke AST parsing eller dataflow-analyse
 
-Projektet demonstrerer derfor primært et kontrolleret AI-agent workflow fremfor perfekt sikkerhedsanalyse.
+Projektet demonstrerer således primært et kontrolleret workflow for et AI-agent-system fremfor perfekt sikkerhedsanalyse.
 
 ## 6. Evaluering
 
-Systemet blev evalueret ved hjælp af faste testrepositories og prædefinerede testcases.
+Systemet blev evalueret ved hjælp af faste test-repositories og prædefinerede testcases.
 
 Evalueringen omfattede blandt andet:
 - repositories med forventede vulnerabilities
 - repositories uden fund
-- false positives
-- false negatives
+- falske positiver
+- falske negativer
 - deduplikering af fund
-- failure handling
-- malformed LLM output
+- fejlhåndtering
+- ugyldigt JSON-output fra LLM’en
 
 Projektet inkluderer blandt andet følgende typer testcases:
-- repositories med hardcoded secrets
-- repositories med SQL injection patterns
-- sikre repositories uden findings
-- repositories designet til at fremprovokere false positives
-- repositories designet til at demonstrere false negatives
+- repositories med hardkodede secrets
+- repositories med SQL injection-møsntre
+- sikre repositories uden fund
+- repositories designet til at fremprovokere falske positiver
+- repositories designet til at demonstrere falske negativer
 - tomme repositories
 - ugyldige repository paths
 
-Evalueringen viste, at systemet generelt producerede grounded og konsistente resultater indenfor det afgrænsede scope.
+Evalueringen viste, at systemet generelt producerede verificerbare og konsistente resultater indenfor det afgrænsede scope.
 
-Et vigtigt resultat var identificeringen af en false positive i den første version af hardcoded secret-scanneren. Scanneren identificerede fejlagtigt en configuration-baseret connection string som en hardcoded secret. Regex-reglen blev efterfølgende forbedret for at reducere denne type fejl.
+Et vigtigt resultat var identificeringen af en falsk positiv i den første version af hardcoded secret-scanneren. Scanneren identificerede fejlagtigt en connection string hentet fra konfiguration som en hardcoded secret. Regex-reglen blev efterfølgende forbedret for at reducere denne type fejl.
 
 Projektet demonstrerede også, at:
 - LLM’en kunne returnere tomt JSON-output uden hallucinerede fund
-- relaterede findings kunne kombineres
+- relaterede fund kunne kombineres
 - ugyldigt JSON-output kunne opdages deterministisk
-- tool call logging fungerede korrekt gennem hele workflowet
+- logging af værktøjskald fungerede korrekt gennem hele workflowet
 
-Den samlede evaluering understøtter, at systemet fungerer som et kontrolleret AI-agent workflow med fokus på explainability og grounded reasoning.
+Den samlede evaluering understøtter, at systemet fungerer som et kontrolleret AI-agent-workflow med fokus på forklarlighed (explainability) og grounded reasoning.
 
 ---
 
 ## 7. Konklusion
 
-Projektet demonstrerer, hvordan et moderne AI-agent-system kan kombinere deterministiske tools med LLM-baseret reasoning til secure coding-analyse.
+Projektet demonstrerer, hvordan et moderne AI-agent-system kan kombinere deterministiske værktøjer med LLM-baseret ræsonnement og analyse til vurdering af problemer inden for sikker kodning.
 
 Ved at adskille:
 - scanning
-- reasoning
+- ræsonnement og analyse
 - validering
 
 opnår systemet et mere transparent og kontrolleret workflow end et rent LLM-baseret system.
 
-Projektet viser samtidig både styrker og begrænsninger ved denne type AI-agentarkitektur. Deterministiske tools forbedrer grounding og reducerer hallucinationer, men simple regex-baserede scannere giver stadig risiko for false positives og false negatives.
+Projektet viser samtidig både styrker og begrænsninger ved denne type AI-agentarkitektur. Deterministiske værktøjer forbedrer grounding og reducerer hallucinationsrisiko, men simple regex-baserede scannere giver stadig risiko for falske positiver og falske negativer.
 
-Selvom systemet ikke er en produktionsklar security scanner, demonstrerer projektet centrale principper indenfor:
-- AI agents
-- tool-calling
+Selvom systemet ikke er en produktionsklar sikkerhedsscanner, demonstrerer projektet centrale principper indenfor:
+- AI agenter
+- værktøjskald (tool-calling)
 - grounded reasoning
-- hallucination mitigation
-- structured outputs
-- deterministic validation
+- hallucinationsreduktion (hallucination mitigation)
+- strukturerede output (structured outputs)
+- deterministisk validering
 - evaluering af agentadfærd
 
 Projektet opfylder dermed formålet om at demonstrere et afgrænset, forklarligt og evaluerbart AI-agent-system.
